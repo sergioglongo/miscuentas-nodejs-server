@@ -18,8 +18,6 @@ export function createToken(user, from) {
   if (from === 'admin') {
     token_key = config.token.admin_token_key;
   }
- 
-
   return jwt.encode(payload, token_key);
 }
 
@@ -27,17 +25,13 @@ export function createToken(user, from) {
 export function decodeToken(token, from) {
   const decoded = new Promise((resolve, reject) => {
     try {
-
       let token_key;
-
       if (from === 'user') {
         token_key = config.token.user_token_key;
       }
-
       if (from === 'admin') {
         token_key = config.token.admin_token_key;
       }
-
       const payload = jwt.decode(token, token_key);
 
       if (payload.exp <= moment().unix()) {

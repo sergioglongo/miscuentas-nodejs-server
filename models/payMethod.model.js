@@ -1,8 +1,8 @@
 import sequelize from 'sequelize';
 import db from '../db.js';
-import Unit from './unit.model.js';
+import AccountModel from './account.model.js';
 
-const AreaModel = db.define('areas', {
+const PayMethodModel = db.define('pay_methods', {
     id: {
         type: sequelize.INTEGER,
         primaryKey: true,
@@ -13,22 +13,20 @@ const AreaModel = db.define('areas', {
         type: sequelize.STRING,
         allowNull: false,
     },
-    description: {
-        type: sequelize.TEXT,
-        allowNull: true,
+    method: {
+        type: sequelize.ENUM(['debit', 'credit', 'cash', 'transfer', 'other']),
+        allowNull: false,
+        defaultValue: 'debit',
     },
-    color: {
-        type: sequelize.STRING,
-        allowNull: true,
-    },
-    icon: {
-        type: sequelize.STRING,
-        allowNull: true,
-    },
-    type:{
-        type:sequelize.ENUM(['in','out']),
+    type : {
+        type: sequelize.ENUM(['in','out']),
         allowNull: false,
         defaultValue: 'out',
+    },
+    excluded: {
+        type: sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue: false,
     },
     is_active: {
         type: sequelize.BOOLEAN,
@@ -47,7 +45,7 @@ const AreaModel = db.define('areas', {
     },
 });
 
-Unit.hasMany(AreaModel, { foreignKey: 'unitId' });
-AreaModel.belongsTo(Unit, { foreignKey: 'unitId' });
+AccountModel.hasMany(PayMethodModel, { foreignKey: 'accountId' });
+PayMethodModel.belongsTo(AccountModel, { foreignKey: 'accountId' });
 
-export default AreaModel;
+export default PayMethodModel;

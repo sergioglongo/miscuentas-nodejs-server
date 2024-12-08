@@ -1,8 +1,7 @@
 import sequelize from 'sequelize';
 import db from '../db.js';
-import Unit from './unit.model.js';
 
-const AreaModel = db.define('areas', {
+const UnitModel = db.define('unit', {
     id: {
         type: sequelize.INTEGER,
         primaryKey: true,
@@ -17,28 +16,23 @@ const AreaModel = db.define('areas', {
         type: sequelize.TEXT,
         allowNull: true,
     },
-    color: {
+    photo: {
         type: sequelize.STRING,
         allowNull: true,
     },
-    icon: {
-        type: sequelize.STRING,
-        allowNull: true,
-    },
-    type:{
-        type:sequelize.ENUM(['in','out']),
+    is_premium: {
+        type: sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: 'out',
+        defaultValue: false
+    },
+    last_change_date: {
+        type: sequelize.DATE,
+        allowNull: true,
     },
     is_active: {
         type: sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: true
-    },
-    default: {
-        type: sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
     },
     deleted: {
         type: sequelize.BOOLEAN,
@@ -47,7 +41,4 @@ const AreaModel = db.define('areas', {
     },
 });
 
-Unit.hasMany(AreaModel, { foreignKey: 'unitId' });
-AreaModel.belongsTo(Unit, { foreignKey: 'unitId' });
-
-export default AreaModel;
+export default UnitModel;

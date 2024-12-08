@@ -1,4 +1,14 @@
 {
+    "compilerOptions": {
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "paths": {
+            "*": [
+                "*",
+                "*.js"
+            ]
+        }
+    },
     "scripts": {
         "dev": "nodemon index",
         "start": "node index",

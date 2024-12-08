@@ -15,16 +15,17 @@ app.use(express.json());
 
 async function database() {
     try {
-        await db.sync({ force: true })
+        await db.sync({ force: false })
             .then(() => {
                 console.log('La base de datos ha sido sincronizada');
+                console.log('Conectado a la base de datos en puerto', process.env.PORT);
             })
             .catch((error) => {
                 console.error('Error al sincronizar la base de datos:', error);
             });
-        console.log('Conectado a la base de datos en puerto', process.env.PORT);
     } catch (error) {
-        console.log(error);
+        // console.log(error);
+        console.error('Error iniciar la base de datos:', error);
     }
 }
 
@@ -41,6 +42,6 @@ app.get("/", (req, res) => {
 
 app.use("/api/", mainRoute);
 
-app.use('/uploads', express.static(path.resolve("./uploads", 'uploads')));
+app.use('/uploads', express.static('uploads'));
 // const __dirname = path.resolve();
 // app.use('/media', express.static(path.join(__dirname, 'media_downloads')));

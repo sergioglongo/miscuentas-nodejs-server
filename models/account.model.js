@@ -1,13 +1,12 @@
 import sequelize from 'sequelize';
 import db from '../db.js';
-import UsersModel from './users.model.js';
-import AccountTypeModel from './accountTypes.model.js';
-import AccountEntity from './accountEntities.model.js';
+import UnitModel from './unit.model.js';
 
 const AccountModel = db.define('accounts', {
-    id:{
-        type:sequelize.STRING,
+    id: {
+        type: sequelize.INTEGER,
         primaryKey: true,
+        autoIncrement: true,
         allowNull: false,
     },
     name:{
@@ -24,26 +23,29 @@ const AccountModel = db.define('accounts', {
         allowNull: false,
         defaultValue: 'Pesos',
     },
-
-    deleted: {
+    type:{
+        type:sequelize.ENUM(['bank','electronic','cash','debt','other']),
+        allowNull: false,
+        defaultValue: 'bank',
+    },
+    is_active: {
         type: sequelize.BOOLEAN,
-        allowNull: true,
-        defaultValue: false,
+        allowNull: false,
+        defaultValue: true
     },
     default: {
         type: sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
     },
+    deleted: {
+        type: sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
 });
 
-UsersModel.hasMany(AccountModel, { foreignKey: 'userId' });
-AccountModel.belongsTo(UsersModel, { foreignKey: 'userId' });
-
-AccountTypeModel.hasMany(AccountModel, { foreignKey: 'typeId' });
-AccountModel.belongsTo(AccountTypeModel, { foreignKey: 'typeId' });
-
-AccountEntity.hasMany(AccountModel, { foreignKey: 'entityId' });
-AccountModel.belongsTo(AccountEntity, { foreignKey: 'entityId' });
+UnitModel.hasMany(AccountModel, { foreignKey: 'unitId' });
+AccountModel.belongsTo(UnitModel, { foreignKey: 'unitId' });
 
 export default AccountModel;
