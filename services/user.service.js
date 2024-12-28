@@ -41,9 +41,14 @@ export const signService = async ({ email, username, password, google_id }) => {
 			}
 
 			if (selectedUser && compare_password) {
+				const units = selectedUser?.dataValues?.units;
+				const unitMain = units.find((unit) => unit?.user_unit.is_main_unit === true);
+				const unitMainClean = JSON.parse(JSON.stringify(unitMain));
+				delete unitMainClean.user_unit;
 				const { password, ...userWithoutPassword } = selectedUser?.dataValues;
 				const userWithToken = {
 					user: userWithoutPassword,
+					unitMain: unitMainClean,
 					accessToken: createToken(selectedUser, "user"),
 				};
 				return userWithToken;

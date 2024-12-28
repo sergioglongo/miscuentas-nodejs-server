@@ -1,4 +1,3 @@
-import { accessSync } from "fs";
 import { categoriesInitials } from "../config/initialData/category.init.js";
 import AccountModel from "../models/account.model.js";
 import AreaModel from "../models/areas.model.js";
@@ -7,8 +6,17 @@ import PayMethodModel from "../models/payMethod.model.js";
 import { payMethodsInitials } from "../config/initialData/payMethods.init.js";
 import { areasInitials } from "../config/initialData/area.init.js";
 import { accountsInitials } from "../config/initialData/account.init.js";
+import { Op } from "sequelize";
 
 export const createDefaults = async (req, res) => {
+    const inizializated = await AreaModel.findOne({
+        where: {
+            default: true
+        }
+    });
+    if (inizializated) {
+        return res.status(400).send({ success: false, message: 'Valores por defecto ya fueron creados' });
+    }
     try {
         const areasInitialsPromises = areasInitials.map(async (area) => {
             const areaCreated = await AreaModel.create(area);
@@ -52,5 +60,51 @@ export const createDefaults = async (req, res) => {
 
     } catch (error) {
         res.status(500).send({ success: false, message: error.message });
+    }
+}
+
+export const createAreasCategoriesForUnit = async (req, res) => {
+
+    const unitId = req.body.unitId;
+    const areasList = req.body.areasList || [];
+    const categoriesList = req.body.categoriesList || [];
+    const areasToCreate = await AreaModel.findAll(
+        {
+            where: {
+                id: {
+                    [Op.in]: areasList
+                }
+            }
+        }
+    );
+    const categoriesToCreate = await CategoryModel.findAll(
+        {
+            where: {
+                id: {
+                    [Op.in]: categoriesList
+                }
+            }
+        }
+    );
+    try {
+
+        const areasToCreatePromises = areasToCreate.map(async (area) => {
+            const areaUnit = { ...area?.dataValues, id: null, unitId: unitId, default: false };
+            const areaCreated = await AreaModel.create(areaUnit);
+            return areaCreated.dataValues;
+        });
+        const areasCreated = await Promise.all(areasToCreatePromises);
+        const categoriesToCreatePromises = categoriesToCreate.map(async (category) => {
+            const areaCreatedFinded = areasToCreate?.find((area) => area?.dataValues?.id === category?.dataValues?.areaId);
+            const areaToSave = await areasCreated?.find((area) => area.name === areaCreatedFinded?.name);
+            const areaId = areaToSave?.id;
+            const categoryUnit = { ...category?.dataValues, id: null, unitId: unitId, default: false, areaId };
+            const categoryCreated = await CategoryModel.create(categoryUnit);
+            return categoryCreated.dataValues;
+        })
+        const categoriesCreated = await Promise.all(categoriesToCreatePromises);
+        res.status(200).send({ success: true, result: { areasCreated, categoriesCreated }, message: 'Valores por defecto insertados con exito' });
+    } catch (error) {
+        res.status(500).send({ success: false, message: error });
     }
 }

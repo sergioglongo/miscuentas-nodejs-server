@@ -1,10 +1,11 @@
 import express from 'express';
-import { createArea, createDefaultsAreas, getAllAreas } from '../controllers/area.controller.js';
+import { createEditArea, getAllAreas, getAllAreasByUnitId, getAreaById } from '../controllers/area.controller.js';
 
 const areaRouter = express.Router();
 
-areaRouter.get("/getall", getAllAreas);
-areaRouter.post("/create", createArea);
-areaRouter.get("/initDefault", createDefaultsAreas);
+areaRouter.get("/getAll", getAllAreas);
+areaRouter.get("/getAllByUnitId/:unitId", getAllAreasByUnitId);
+areaRouter.get("/getById/:id", getAreaById);
+areaRouter.post("/createEdit", createEditArea);
 
 export default areaRouter;

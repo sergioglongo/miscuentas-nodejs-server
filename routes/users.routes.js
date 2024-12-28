@@ -9,7 +9,7 @@ import {
 
 const usersRouter = express.Router();
 
-usersRouter.get("/getall", getAllUser);
+usersRouter.get("/getAll", getAllUser);
 usersRouter.post("/createEdit", createEditUser);
 usersRouter.post("/signin", signIn);
 usersRouter.post("/signUp", signUp);

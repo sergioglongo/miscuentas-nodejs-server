@@ -1,14 +1,24 @@
 import express from 'express';
 import usersRouter from './users.routes.js';
 import areaRouter from './area.routes.js';
-import { createDefaults } from '../controllers/params.controller.js';
 import unitsRouter from './unit.routes.js';
+import paramsRouter from './params.routes.js';
+import categoryRouter from './category.routes.js';
+import accountRouter from './accounts.route.js';
+import payMethodRouter from './payMethod.routes.js';
+import transactionsRouter from './transactions.routes.js';
+import reportsRouter from './reports.route.js';
 
 const mainRoute = express.Router();
 
 mainRoute.use("/users", usersRouter);
+mainRoute.use("/account", accountRouter);
+mainRoute.use("/paymethod", payMethodRouter);
 mainRoute.use("/unit", unitsRouter);
 mainRoute.use("/area", areaRouter);
-mainRoute.get("/initialize",createDefaults);
+mainRoute.use("/category", categoryRouter);
+mainRoute.use("/transaction", transactionsRouter);
+mainRoute.use("/reports", reportsRouter);
+mainRoute.use("/params", paramsRouter);
 
 export default mainRoute;

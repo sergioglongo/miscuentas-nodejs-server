@@ -1,0 +1,165 @@
+import sequelize from 'sequelize';
+import CategoryModel from "../models/category.model.js";
+import PayMethodModel from "../models/payMethod.model.js";
+import TransactionModel from "../models/transaction.model.js";
+import UnitModel from "../models/unit.model.js";
+import AreaModel from '../models/areas.model.js';
+import moment from "moment";
+import AccountModel from '../models/account.model.js';
+
+export const getAllPaymentsByUnitId = async (unitId) => {
+    try {
+        const lista = await TransactionModel.findAll({
+            include: [
+                {
+                    model: UnitModel,
+                    required: true,
+                    attributes: ['name'],
+                    where: { id: unitId }
+                },
+                {
+                    model: PayMethodModel,
+                    required: true,
+                    attributes: ['name', 'method'],
+                    where: { type: 'out' }
+                },
+                {
+                    model: CategoryModel,
+                    required: true,
+                    attributes: ['name'],
+                }
+            ],
+        });
+
+        res.status(200).send({
+            success: true,
+            result: lista,
+            count: lista?.length || 0
+        });
+
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+}
+
+export const getAllIncomesByUnitId = async (unitId) => {
+
+    try {
+        const lista = await TransactionModel.findAll({
+            include: [
+                {
+                    model: UnitModel,
+                    required: true,
+                    attributes: ['name'],
+                    where: { id: unitId }
+                },
+                {
+                    model: PayMethodModel,
+                    required: true,
+                    attributes: ['name', 'method'],
+                    where: type == 'in'
+                },
+                {
+                    model: CategoryModel,
+                    required: true,
+                    attributes: ['name'],
+                }
+            ],
+        });
+
+        res.status(200).send({
+            success: true,
+            result: lista,
+            count: lista?.length || 0
+        });
+
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+}
+
+export const PaymentsByArea = async (unitId, initDate, endDate) => {
+   
+    try {
+        const lista = await TransactionModel.findAll({
+            include: [
+                {
+                    model: UnitModel,
+                    required: true,
+                    attributes: [],
+                    where: { id: unitId }
+                },
+                {
+                    model: PayMethodModel,
+                    required: true,
+                    attributes: [],
+                    where: { type: 'out' }
+                },
+                {
+                    model: CategoryModel,
+                    as: 'category',
+                    required: true,
+                    attributes: ['id'],
+                    include: [
+                        {
+                            model: AreaModel,
+                            as: 'area',
+                            required: true,
+                            attributes: ['id', 'name', 'color', 'icon'],
+                            // group: ['name'],
+                        }
+                    ]
+                }
+            ],
+            where: {
+                date: {
+                    [sequelize.Op.between]: [initDate || moment().startOf('month').toDate(), endDate || moment().toDate()]
+                }
+            },
+            group: ['category.area.name'],
+            attributes: [
+                [sequelize.fn('sum', sequelize.col('amount')), 'total_amount',],
+            ]
+        });
+
+        return lista;
+    } catch (error) {
+        console.log("error", error);
+
+        return error;
+    }
+}
+
+export const AccountsResumeByUnitId = async (unitId, initDate, endDate) => {
+
+    try {
+        const lista = await AccountModel.findAll({
+            include: [
+                {
+                    model: UnitModel,
+                    required: true,
+                    attributes: [],
+                    where: { id: unitId }
+                },
+            ],
+            // where: {
+            //     date: {
+            //         [sequelize.Op.between]: [initDate || moment().startOf('month').toDate(), endDate || moment().toDate()]
+            //     }
+            // },
+            attributes: [
+                'name', 'balance', 'type'
+            ]
+            // group: ['category.area.name'],
+            // attributes: [
+            //     [sequelize.fn('sum', sequelize.col('amount')), 'total_amount',],
+            // ]
+        });
+
+        return lista;
+    } catch (error) {
+        console.log("error", error);
+
+        return error;
+    }
+}

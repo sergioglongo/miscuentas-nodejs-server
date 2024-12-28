@@ -43,15 +43,19 @@ export async function getUnitsByUserId(req, res, next) {
       include: [
         {
           model: UserModel, where: { id: userId },
-        }
+        },
+        
       ],
     });
-
+    const userUnits = await UserUnitModel.findAll({
+      where: { userId },
+    })
     res.status(200).send({
       success: true,
       result: units,
       message: 'Unidades de usuario ' + userId + ' obtenidas con exito',
-      count: units?.length || 0
+      count: units?.length || 0,
+      userUnits
     });
 
   } catch (error) {
@@ -63,13 +67,13 @@ export async function createEditUnit(req, res, next) {
   let data = req.body;
 
   try {
-    let user = await unitCreateEditService(data);
+    let unit = await unitCreateEditService(data);
 
-    if (user) {
+    if (unit) {
       return res.json({
         success: true,
-        message: "User created",
-        user: user,
+        message: "unit created",
+        unit,
       });
     }
   } catch (error) {

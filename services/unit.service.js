@@ -1,4 +1,5 @@
 import UnitModel from "../models/unit.model.js";
+import UserUnitModel from "../models/userUnit.model.js";
 
 export const unitCreateEditService = async ({
     id,
@@ -8,9 +9,13 @@ export const unitCreateEditService = async ({
     is_premium,
     is_active,
     deleted,
+    userid,
+    permissions,
+    is_main_unit,
+    type,
 }) => {
     let unit = new UnitModel();
-    
+    let unitsaved;
     try {
         if(id) {
             unit = await UnitModel.findByPk(id);
@@ -21,7 +26,10 @@ export const unitCreateEditService = async ({
             unit.last_change_date = new Date();
             unit.is_active = is_active ?? unit.is_active;
             unit.deleted = deleted ?? unit.deleted;
+            unitsaved =await unit.save();
         } else {
+            console.log("data que llega", {name, description, photo, is_premium, is_active, deleted, userid, permissions, is_main_unit, type});
+            
             unit.name = name?.trim();
             unit.description = description?.trim() || null;
             unit.photo = photo || null;
@@ -29,12 +37,19 @@ export const unitCreateEditService = async ({
             unit.last_change_date = new Date();
             unit.is_active = is_active || true;
             unit.deleted = deleted || false;
+            unitsaved =await unit.save();
+            let userUnit = new UserUnitModel();
+            userUnit.userId = userid;
+            userUnit.type = type || 'guest';
+            userUnit.unitId = unitsaved.id;
+            userUnit.permissions = JSON.stringify(permissions) || JSON.stringify({owner: true, user: true, guest: true});
+            userUnit.is_main_unit = is_main_unit || false;
+            await userUnit.save();
         }
-        await unit.save();
-        return unit;
+        return unitsaved;
     } catch (error) {
-        console.log("error creando la unidad", error);
+        console.log("error creando/editando unidad", error);
         
-        throw new Error("Error al crear la unidad", error);
+        throw new Error("Error creando/editando unidad", error);
     }
 }

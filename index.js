@@ -7,7 +7,7 @@ import cors from 'cors';
 
 //version 0.0.1
 dotenv.config();
-const baseURL = (process.env.NODE_ENV === 'development' ? `http://localhost:${process.env.SERVER_PORT}` : `${process.env.SERVER_HOST}`) + '';
+const baseURL = (process.env.NODE_ENV === 'development' ? `http://192.168.1.111:${process.env.SERVER_PORT}` : `${process.env.SERVER_HOST}`) + '';
 
 const app = express();
 app.use(cors());
@@ -21,7 +21,7 @@ async function database() {
                 console.log('Conectado a la base de datos en puerto', process.env.PORT);
             })
             .catch((error) => {
-                console.error('Error al sincronizar la base de datos:', error);
+                console.error('Error al sincronizar la base de datos:', error?.original);
             });
     } catch (error) {
         // console.log(error);
