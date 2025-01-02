@@ -79,7 +79,7 @@ export const getAllIncomesByUnitId = async (unitId) => {
 }
 
 export const PaymentsByArea = async (unitId, initDate, endDate) => {
-   
+
     try {
         const lista = await TransactionModel.findAll({
             include: [
@@ -93,7 +93,7 @@ export const PaymentsByArea = async (unitId, initDate, endDate) => {
                     model: PayMethodModel,
                     required: true,
                     attributes: [],
-                    where: { type: 'out' }
+                    // where: { type: 'out' }
                 },
                 {
                     model: CategoryModel,
@@ -119,6 +119,9 @@ export const PaymentsByArea = async (unitId, initDate, endDate) => {
             group: ['category.area.name'],
             attributes: [
                 [sequelize.fn('sum', sequelize.col('amount')), 'total_amount',],
+            ],
+            order: [
+                ['total_amount', 'DESC']
             ]
         });
 

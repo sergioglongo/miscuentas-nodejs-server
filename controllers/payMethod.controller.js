@@ -23,26 +23,29 @@ export const getAllPayMethods = async (req, res) => {
 export const getAllPayMethodsByUnitId = async (req, res) => {
     try {
         const unitId = req.params.unitId;
+        const type = req.params.type;
+        
         const lista = await PayMethodModel.findAll({
             include: [
                 {
                     model: AccountModel,
                     required: true,
                     attributes: ['name'],
-                    where: { unitId: unitId }
+                    where:{ unitId }
                 }
             ],
-         });
+            where: type ? { type } : null
+        });
 
-res.status(200).send({
-    success: true,
-    result: lista,
-    count: lista?.length || 0
-});
+        res.status(200).send({
+            success: true,
+            result: lista,
+            count: lista?.length || 0
+        });
 
     } catch (error) {
-    res.status(500).send({ success: false, message: error.message });
-}
+        res.status(500).send({ success: false, message: error.message });
+    }
 }
 
 export const getPayMethodById = async (req, res) => {

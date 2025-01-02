@@ -5,6 +5,7 @@ const areaRouter = express.Router();
 
 areaRouter.get("/getAll", getAllAreas);
 areaRouter.get("/getAllByUnitId/:unitId", getAllAreasByUnitId);
+areaRouter.get("/getAllByUnitId/:unitId/:type", getAllAreasByUnitId);
 areaRouter.get("/getById/:id", getAreaById);
 areaRouter.post("/createEdit", createEditArea);
 

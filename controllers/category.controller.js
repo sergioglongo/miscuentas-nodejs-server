@@ -21,13 +21,16 @@ export const getAllCatepories = async (req, res) => {
 export const getAllCateporiesByUnitId = async (req, res) => {
     try {
         const unitId = req.params.unitId;
+        const type = req.params.type;
+        const where = type ? { type, unitId: parseInt(unitId) } : { unitId: parseInt(unitId) };
+
         const lista = await CategoryModel.findAll({
             include: [
                 {
                     model: AreaModel,
                     required: true,
                     attributes: ['name', 'type', 'color'],
-                    where: { unitId }
+                    where
                 }
             ],
         });

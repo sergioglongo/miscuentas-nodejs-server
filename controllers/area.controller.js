@@ -19,10 +19,13 @@ export const getAllAreas = async (req, res) => {
 }
 export const getAllAreasByUnitId = async (req, res) => {
   try {
-    const unitId = req.params.unitId;
-    const lista = await AreaModel.findAll({
-      where: { unitId }
-    });
+   const unitId = req.params.unitId;
+   const type = req.params.type;
+   const where = type ? { type, unitId: parseInt(unitId) } : { unitId: parseInt(unitId) };
+   
+   const lista = await AreaModel.findAll({
+     where
+   });
 
     res.status(200).send({
       success: true,

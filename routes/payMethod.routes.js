@@ -5,6 +5,7 @@ const payMethodRouter = express.Router();
 
 payMethodRouter.get("/getAll", getAllPayMethods);
 payMethodRouter.get("/getAllByUnitId/:unitId", getAllPayMethodsByUnitId);
+payMethodRouter.get("/getAllByUnitId/:unitId/:type", getAllPayMethodsByUnitId);
 payMethodRouter.get("/getById/:id", getPayMethodById);
 payMethodRouter.post("/createEdit", createEditPayMethod);
 
