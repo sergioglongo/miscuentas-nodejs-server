@@ -72,9 +72,9 @@ export const getAllIncomes = async (req, res) => {
 }
 
 export const reportAreasResumeByUnitId = async (req, res) => {
-    const {unitId, startDate, endDate} = req.body;
+    const {unitId, startDate, endDate, type} = req.body;
     try {
-        const report = await PaymentsByArea(unitId, startDate, endDate);
+        const report = await PaymentsByArea(unitId, startDate, endDate, type);
         res.status(200).send({
             success: true, 
             result: report

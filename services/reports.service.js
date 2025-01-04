@@ -78,8 +78,9 @@ export const getAllIncomesByUnitId = async (unitId) => {
     }
 }
 
-export const PaymentsByArea = async (unitId, initDate, endDate) => {
-
+export const PaymentsByArea = async (unitId, initDate, endDate, type) => {
+    console.log("type", type);
+    
     try {
         const lista = await TransactionModel.findAll({
             include: [
@@ -93,7 +94,6 @@ export const PaymentsByArea = async (unitId, initDate, endDate) => {
                     model: PayMethodModel,
                     required: true,
                     attributes: [],
-                    // where: { type: 'out' }
                 },
                 {
                     model: CategoryModel,
@@ -106,6 +106,7 @@ export const PaymentsByArea = async (unitId, initDate, endDate) => {
                             as: 'area',
                             required: true,
                             attributes: ['id', 'name', 'color', 'icon'],
+                            where: type ? { type } : null
                             // group: ['name'],
                         }
                     ]
