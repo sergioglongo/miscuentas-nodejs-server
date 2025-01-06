@@ -13,25 +13,27 @@ export const accountCreateEditService = async ({
     unitId,
 }) => {
     let account = new AccountModel();
+    
     try {
         const unit = await UnitModel.findByPk(unitId);
 
         if (!unit) {
-            throw new Error("Area no encontrada");
+            throw new Error("Unidad no encontrada");
         }
         if (id) {
             account = await AccountModel.findByPk(id);
             account.name = name?.trim() ?? account?.name;
-            account.balance = balance?.trim() || account?.balance || 0;
+            account.balance = balance || account?.balance || 0;
             account.currency = currency || 'Pesos';
             account.type = type || 'cash';
-            account.is_active = is_active || true;
-            account.deleted = deleted || false;
-            account.default = is_default || false;
+            account.is_active = is_active !== undefined ? is_active : true;
+            account.deleted = deleted !== undefined ? deleted : false;
+            account.default = is_default !== undefined ? is_default : false;
             account.unitId = unitId;
+            
         } else {
             account.name = name.trim();
-            account.balance = balance?.trim() || 0;
+            account.balance = balance || 0;
             account.currency = currency || 'Pesos';
             account.type = type || 'in';
             account.unitId = unitId;

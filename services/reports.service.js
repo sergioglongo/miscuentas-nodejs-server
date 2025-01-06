@@ -78,8 +78,7 @@ export const getAllIncomesByUnitId = async (unitId) => {
     }
 }
 
-export const PaymentsByArea = async (unitId, initDate, endDate, type) => {
-    console.log("type", type);
+export const PaymentsResumeByArea = async (unitId, initDate, endDate, type) => {
     
     try {
         const lista = await TransactionModel.findAll({
@@ -146,6 +145,9 @@ export const AccountsResumeByUnitId = async (unitId, initDate, endDate) => {
                     where: { id: unitId }
                 },
             ],
+            where: {
+                is_active: true
+            },
             // where: {
             //     date: {
             //         [sequelize.Op.between]: [initDate || moment().startOf('month').toDate(), endDate || moment().toDate()]
