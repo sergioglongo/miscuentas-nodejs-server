@@ -77,10 +77,11 @@ export const reportAreasResumeByUnitId = async (req, res) => {
 
     try {
         if (!unitId) throw new Error("UnitId es requerido");
-        const report = await PaymentsResumeByArea(unitId, startDate, endDate, type);
+        const result = await PaymentsResumeByArea(unitId, startDate, endDate, type);
         res.status(200).send({
             success: true,
-            result: report
+            result: result.report,
+            total: result.total
         })
     } catch (error) {
         res.status(500).send({ success: false, message: error.message });
@@ -109,10 +110,9 @@ export const reportAreasdMonthToMonthByUnitId = async (req, res) => {
         if (!unitId) throw new Error("UnitId es requerido");
         const report = await Promise.all(meses.map(async (mes) => {
             const paymentsResume = await PaymentsResumeByArea(unitId, mes.startDate, mes.endDate, type);
-            const response = {mes:mes.mes, anio:mes.anio, paymentsResume };
             paymentsResume.mes = mes.mes;
             paymentsResume.anio = mes.anio;
-            return response;
+            return paymentsResume;
         }));
 
         res.status(200).send({

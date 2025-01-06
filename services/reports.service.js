@@ -79,7 +79,7 @@ export const getAllIncomesByUnitId = async (unitId) => {
 }
 
 export const PaymentsResumeByArea = async (unitId, initDate, endDate, type) => {
-    
+
     try {
         const lista = await TransactionModel.findAll({
             include: [
@@ -124,8 +124,12 @@ export const PaymentsResumeByArea = async (unitId, initDate, endDate, type) => {
                 ['total_amount', 'DESC']
             ]
         });
-
-        return lista;
+        // console.log("lista de areas", lista);
+        let total = 0;
+        lista.map((item) => total += parseFloat(item.dataValues.total_amount));
+        const report = Object.values(lista);
+        const listaReturn = {report, total};
+        return listaReturn;
     } catch (error) {
         console.log("error", error);
 
