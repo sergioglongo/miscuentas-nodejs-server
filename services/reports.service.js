@@ -158,7 +158,7 @@ export const AccountsResumeByUnitId = async (unitId) => {
             //     }
             // },
             attributes: [
-                'name', 'balance', 'type'
+                'name', 'balance', 'type', 'id',
             ]
             // group: ['category.area.name'],
             // attributes: [

@@ -4,7 +4,7 @@ import UnitModel from "../models/unit.model.js";
 import AccountModel from "../models/account.model.js";
 import { payMethodCreateEditService } from "../services/payMethod.service.js";
 import TransactionModel from "../models/transaction.model.js";
-import { transactionCreateEditService } from "../services/transaction.service.js";
+import { transactionCreateEditService, TransactionsByUnitAndAccount } from "../services/transaction.service.js";
 import CategoryModel from "../models/category.model.js";
 import AreaModel from "../models/areas.model.js";
 
@@ -68,6 +68,29 @@ export const getAllTransactionsByUnitId = async (req, res) => {
     }
 }
 
+export async function getAllTransactionsByUnitAndAccount(req, res, next) {
+    let data = req.body;
+    console.log("data que llega", data);
+    
+    try {
+        let transaction = await TransactionsByUnitAndAccount(data);
+        let { account } = data;
+        const accountData = await AccountModel.findByPk(account);
+        if (transaction) {
+            return res.json({
+                success: true,
+                message: "Get all Transactions by account",
+                transaction,
+                account: accountData
+            });
+        }
+    } catch (error) {
+        console.log(error);
+        let error_message = error.message;
+
+        res.status(500).send({ success: false, message: error_message, error: error });
+    }
+}
 export const getTransactionById = async (req, res) => {
     try {
         const { id } = req.params;

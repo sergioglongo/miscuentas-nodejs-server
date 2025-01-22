@@ -1,13 +1,12 @@
 import express from 'express';
 import db from './db.js';
 import dotenv from 'dotenv';
-import path from 'path';
 import mainRoute from './routes/index.routes.js';
 import cors from 'cors';
 
 //version 0.0.1
 dotenv.config();
-const baseURL = (process.env.NODE_ENV === 'development' ? `http://192.168.1.111:${process.env.SERVER_PORT}` : `${process.env.SERVER_HOST}`) + '';
+const baseURL = (process.env.NODE_ENV === 'development' ? `http://localhost:${process.env.SERVER_PORT}` : `${process.env.SERVER_HOST}`) + '';
 
 const app = express();
 app.use(cors());

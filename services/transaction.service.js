@@ -1,8 +1,10 @@
+import { Op } from "sequelize";
 import AccountModel from "../models/account.model.js";
 import CategoryModel from "../models/category.model.js";
 import PayMethodModel from "../models/payMethod.model.js";
 import TransactionModel from "../models/transaction.model.js";
 import UnitModel from "../models/unit.model.js";
+import AreaModel from "../models/areas.model.js";
 
 export const transactionCreateEditService = async ({
     id,
@@ -109,5 +111,65 @@ export const transactionCreateEditService = async ({
     } catch (error) {
         console.log("error en transaccion", error);
         throw new Error("Error al crear la transaccion", error);
+    }
+}
+
+export const TransactionsByUnitAndAccount = async({
+    unitId,
+    account,
+    type,
+    dateFrom,
+    dateTo
+}) => {
+    try {
+        const lista = await TransactionModel.findAll({
+            include: [
+                {
+                    model: UnitModel,
+                    required: true,
+                    attributes: ['name'],
+                    where: { id: unitId }
+                },
+                {
+                    model: PayMethodModel,
+                    required: true,
+                    attributes: ['name', 'method'],
+                    include: [
+                        {
+                            model: AccountModel,
+                            required: true,
+                            attributes: ['id', 'name', 'type'],
+                            where: { id: account }
+                        }
+                    ],
+                    where: type ? { type } : null
+                },
+                {
+                    model: CategoryModel,
+                    required: true,
+                    attributes: ['name'],
+                    include: [
+                        {
+                            model: AreaModel,
+                            required: true,
+                            attributes: ['id', 'name'],
+                        }
+                    ]
+                },
+            ],
+            where: {
+                date: {
+                    [Op.between]: [dateFrom, dateTo]
+                }
+            },
+            order: [
+                ['date', 'DESC'] // o 'DESC' si lo deseas en orden descendente
+            ],
+        });
+
+        return lista;
+    } catch (error) {
+        console.log("error al obtener transacciones", error);
+        throw new Error("Error al obtener las transacciones", error);
     }
 }
