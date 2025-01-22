@@ -124,10 +124,10 @@ export const reportAreasdMonthToMonthByUnitId = async (req, res) => {
     }
 }
 export const reportAccountsResumeByUnitId = async (req, res) => {
-    const { unitId, startDate, endDate } = req.body;
+    const { unitId } = req.body;
     try {
         if (!unitId) throw new Error("UnitId es requerido");
-        const report = await AccountsResumeByUnitId(unitId, startDate, endDate);
+        const report = await AccountsResumeByUnitId(unitId);
         res.status(200).send({
             success: true,
             result: report

@@ -137,7 +137,7 @@ export const PaymentsResumeByArea = async (unitId, initDate, endDate, type) => {
     }
 }
 
-export const AccountsResumeByUnitId = async (unitId, initDate, endDate) => {
+export const AccountsResumeByUnitId = async (unitId) => {
 
     try {
         const lista = await AccountModel.findAll({
