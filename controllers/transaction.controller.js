@@ -55,6 +55,9 @@ export const getAllTransactionsByUnitId = async (req, res) => {
                     ]
                 }
             ],
+            order: [
+                ['date', 'DESC'] // o 'DESC' si lo deseas en orden descendente
+            ],
         });
 
         res.status(200).send({
