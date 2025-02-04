@@ -66,7 +66,29 @@ export const getCategoryById = async (req, res) => {
         res.status(500).send({ success: false, message: error.message });
     }
 }
-
+export const getCategoriesByAreaId = async (req, res) => {
+    try {
+        const { areaId } = req.params;
+        const categories = await CategoryModel.findAll({
+            attributes: ['id', 'name', 'description', 'color', 'icon', 'is_active'],
+            where: { areaId, deleted: false },
+        });
+        if (categories) {
+            res.status(200).send({
+                success: true,
+                result: categories,
+                message: 'Categorias obtenidas con exito',
+            });
+        } else {
+            res.status(404).send({
+                success: false,
+                message: 'Categorias no encontradas',
+            });
+        }
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+}
 export async function createEditCategory(req, res, next) {
     let data = req.body;
     try {

@@ -1,5 +1,6 @@
 import { areasInitials } from "../config/initialData/area.init.js";
 import AreaModel from "../models/areas.model.js";
+import CategoryModel from "../models/category.model.js";
 import { areaCreateEditService, areaDefaultsCreateService } from "../services/area.service.js";
 
 export const getAllAreas = async (req, res) => {
@@ -19,13 +20,13 @@ export const getAllAreas = async (req, res) => {
 }
 export const getAllAreasByUnitId = async (req, res) => {
   try {
-   const unitId = req.params.unitId;
-   const type = req.params.type;
-   const where = type ? { type, unitId: parseInt(unitId) } : { unitId: parseInt(unitId) };
-   
-   const lista = await AreaModel.findAll({
-     where
-   });
+    const unitId = req.params.unitId;
+    const type = req.params.type;
+    const where = type ? { type, unitId: parseInt(unitId) } : { unitId: parseInt(unitId) };
+
+    const lista = await AreaModel.findAll({
+      where
+    });
 
     res.status(200).send({
       success: true,
@@ -40,7 +41,17 @@ export const getAllAreasByUnitId = async (req, res) => {
 export const getAreaById = async (req, res) => {
   try {
     const { id } = req.params;
-    const area = await AreaModel.findByPk(id);
+    const area = await AreaModel.findByPk(id,
+      {
+        include: [
+          {
+            model: CategoryModel,
+            attributes: ['id', 'name', 'description', 'color', 'icon','is_active'],
+            where: { deleted: false }
+          }
+        ]
+      }
+    );
     if (area) {
       res.status(200).send({
         success: true,

@@ -33,17 +33,17 @@ export const unitCreateEditService = async ({
             unit.name = name?.trim();
             unit.description = description?.trim() || null;
             unit.photo = photo || null;
-            unit.is_premium = is_premium || false;
+            unit.is_premium = is_premium ?? false;
             unit.last_change_date = new Date();
-            unit.is_active = is_active || true;
-            unit.deleted = deleted || false;
+            unit.is_active = is_active ?? true;
+            unit.deleted = deleted ?? false;
             unitsaved =await unit.save();
             let userUnit = new UserUnitModel();
             userUnit.userId = userid;
             userUnit.type = type || 'guest';
             userUnit.unitId = unitsaved.id;
             userUnit.permissions = JSON.stringify(permissions) || JSON.stringify({owner: true, user: true, guest: true});
-            userUnit.is_main_unit = is_main_unit || false;
+            userUnit.is_main_unit = is_main_unit ?? false;
             await userUnit.save();
         }
         return unitsaved;

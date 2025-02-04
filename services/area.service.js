@@ -32,8 +32,8 @@ export const areaCreateEditService = async ({
             area.color = color || null;
             area.icon = icon || null;
             area.type = type || 'in';
-            area.deleted = deleted || false;
-            area.default = is_default || false;
+            area.deleted = deleted ?? false;
+            area.default = is_default ?? false;
             area.unitId = unitId;
         }
         await area.save();

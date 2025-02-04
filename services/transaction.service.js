@@ -31,7 +31,7 @@ export const transactionCreateEditService = async ({
             console.log("Unidad no encontrada");
             throw new Error("Unidad no encontrada");
         }
-        if (!category) {
+        if (!category && categoryId !== null) {
             console.log("Categoria no encontrada");
             throw new Error("Categoria no encontrada");
         }
@@ -59,7 +59,7 @@ export const transactionCreateEditService = async ({
             transaction.discount = discount ?? transaction?.discount;
             transaction.type = type || transaction?.type || 'in';
             transaction.date = new Date(date) || transaction?.date;
-            transaction.deleted = deleted || transaction?.deleted || false;
+            transaction.deleted = deleted ?? transaction?.deleted ?? false;
             transaction.unitId = unitId || transaction?.unitId;
             const payMethodIdOld = transaction?.payMethodId
             transaction.payMethodId = payMethodId || transaction?.payMethodId;

@@ -19,7 +19,7 @@ const PayMethodModel = db.define('pay_methods', {
         defaultValue: 'debit',
     },
     type : {
-        type: sequelize.ENUM(['in','out']),
+        type: sequelize.ENUM(['in','out','adjustment']),
         allowNull: false,
         defaultValue: 'out',
     },

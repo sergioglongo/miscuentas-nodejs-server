@@ -44,12 +44,12 @@ export const getAllTransactionsByUnitId = async (req, res) => {
                 },
                 {
                     model: CategoryModel,
-                    required: true,
+                    // required: true,
                     attributes: ['name'],
                     include: [
                         {
                             model: AreaModel,
-                            required: true,
+                            // required: true,
                             attributes: ['id', 'name'],
                         }
                     ]

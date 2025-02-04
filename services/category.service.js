@@ -7,7 +7,6 @@ export const categoryCreateEditService = async ({
     description,
     color,
     icon,
-    type,
     deleted,
     is_active,
     default: is_default,
@@ -35,7 +34,6 @@ export const categoryCreateEditService = async ({
             category.description = description?.trim() || '';
             category.color = color || null;
             category.icon = icon || null;
-            category.type = type || 'in';
             category.areaId = areaId;
         }
         let category_saved = await category.save()
