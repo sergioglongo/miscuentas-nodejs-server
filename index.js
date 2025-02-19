@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import mainRoute from './routes/index.routes.js';
 import cors from 'cors';
 
-//version 0.0.1
+//version 0.0.4
 dotenv.config();
 const baseURL = (process.env.NODE_ENV === 'development' ? `http://localhost:${process.env.SERVER_PORT}` : `${process.env.SERVER_HOST}`) + '';
 
