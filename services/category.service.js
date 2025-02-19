@@ -25,9 +25,9 @@ export const categoryCreateEditService = async ({
             category.description = description?.trim() || category?.description || '';
             category.color = color ?? null;
             category.icon = icon ?? null;
-            category.is_active = is_active || true;
-            category.deleted = deleted || false;
-            category.default = is_default || false;
+            category.is_active = is_active ?? true;
+            category.deleted = deleted ?? false;
+            category.default = is_default ?? false;
             category.areaId = areaId;
         } else {
             category.name = name.trim();

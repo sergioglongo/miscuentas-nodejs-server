@@ -4,7 +4,7 @@ import UnitModel from "../models/unit.model.js";
 import AccountModel from "../models/account.model.js";
 import { payMethodCreateEditService } from "../services/payMethod.service.js";
 import TransactionModel from "../models/transaction.model.js";
-import { transactionCreateEditService, TransactionsByUnitAndAccount } from "../services/transaction.service.js";
+import { transactionCreateEditService, transactionDeleteService, TransactionsByUnitAndAccount } from "../services/transaction.service.js";
 import CategoryModel from "../models/category.model.js";
 import AreaModel from "../models/areas.model.js";
 
@@ -57,6 +57,65 @@ export const getAllTransactionsByUnitId = async (req, res) => {
             ],
             order: [
                 ['date', 'DESC'] // o 'DESC' si lo deseas en orden descendente
+            ],
+        });
+
+        res.status(200).send({
+            success: true,
+            result: lista,
+            count: lista?.length || 0
+        });
+
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+}
+
+export const getAllTransactionsBody = async (req, res) => {
+    try {
+        let data = req.body;
+        console.log("data que llega getAllTransactionBody", data);
+
+
+        const lista = await TransactionModel.findAll({
+            include: [
+                {
+                    model: UnitModel,
+                    required: true,
+                    attributes: ['name'],
+                    where: data.unitId ? { id: data.unitId } : null,
+                },
+                {
+                    model: PayMethodModel,
+                    required: true,
+                    attributes: ['name', 'method'],
+                    where: data.type ? { type: data.type } : null,
+                    include: [
+                        {
+                            model: AccountModel,
+                            required: true,
+                            attributes: ['id', 'name'],
+                            where: data.accountId ? { id: data.accountId } : null,
+                        }
+                    ]
+                },
+                {
+                    model: CategoryModel,
+                    // required: true,
+                    attributes: ['name'],
+                    include: [
+                        {
+                            model: AreaModel,
+                            // required: true,
+                            attributes: ['id', 'name'],
+                        }
+                    ],
+                    where: data.categoryId ? { id: data.categoryId } : null,
+                }
+            ],
+            order: [
+                ['date', 'DESC'],
+                ['id', 'DESC']
             ],
         });
 
@@ -162,3 +221,20 @@ export async function createEditTransaction(req, res, next) {
     }
 }
 
+export async function deleteTransactionById(req, res, next) {
+    let { id } = req.params;
+    try {
+        let transaction = await transactionDeleteService(id);
+        if (transaction) {
+            return res.json({
+                success: true,
+                message: "Transaction deleted",
+                transaction,
+            });
+        }
+    } catch (error) {
+        console.log(error);
+        let error_message = error.message;
+        res.status(500).send({ success: false, message: error_message, error: error });
+    }
+}

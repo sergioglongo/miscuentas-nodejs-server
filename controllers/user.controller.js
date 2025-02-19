@@ -11,6 +11,7 @@ import UserUnitModel from "../models/userUnit.model.js";
 import { signService, userCreateEditService } from "../services/user.service.js";
 import PayMethodModel from "../models/payMethod.model.js";
 import { unitCreateEditService } from "../services/unit.service.js";
+import { manageAccounts } from "../services/account.service.js";
 
 export const getAllUser = async (req, res) => {
   try {
@@ -84,14 +85,12 @@ export async function createEditUser(req, res, next) {
   let data = req.body;
 
   try {
-    console.log("Datos que llegan a create", data);
     let user = await userCreateEditService(data);
-
     if (user) {
       return res.json({
         success: true,
         message: "User created",
-        user: user,
+        user,
       });
     }
   } catch (error) {

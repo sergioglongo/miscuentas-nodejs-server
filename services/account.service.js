@@ -21,6 +21,8 @@ export const accountCreateEditService = async ({
     let account = new AccountModel();
 
     try {
+        console.log("unidada que llega en crear cuenta", unitId);
+
         const unit = await UnitModel.findByPk(unitId);
 
         if (!unit) {
@@ -41,7 +43,7 @@ export const accountCreateEditService = async ({
             account.name = name.trim();
             account.balance = balance || 0;
             account.currency = currency || 'Pesos';
-            account.type = type || 'in';
+            account.type = type || 'cash';
             account.unitId = unitId;
         }
         let accountSaved = await account.save()
@@ -62,7 +64,7 @@ const managePayMethods = async (account, pay_methods) => {
         const payMethodsInAccount = await PayMethodModel.findAll({
             where: {
                 accountId: account.id,
-                type: { [Sequelize.Op.ne]: 'adjustment' }
+                type: { [Sequelize.Op.and]: [{ [Sequelize.Op.ne]: 'adjustment' }, { [Sequelize.Op.ne]: 'cash' }] }
             },
             attributes: ['method', 'deleted', 'type'],
             group: ['method'],
@@ -158,7 +160,7 @@ const managePayMethods = async (account, pay_methods) => {
                 name: `${account.name} Ajuste`,
                 method: 'other',
                 type: 'adjustment',
-                deleted: true
+                // deleted: true
             })
                 .catch((error) => {
                     console.log("Error al crear el metodo de pago", error);
@@ -170,7 +172,59 @@ const managePayMethods = async (account, pay_methods) => {
     }
 }
 
-export const adjustAccountBalance = async (accountId, amount, type) => {
+export const manageAccounts = async (unit) => {
+    try {
+        const accountsInUser = await AccountModel.findOne({
+            where: {
+                unitId: unit.id,
+                type: 'cash'
+            },
+            attributes: ['id', 'name', 'deleted', 'type'],
+        });
+        // const accounts = await Promise.all(accountsInUser.map(async (account) => {
+        //     return account.dataValues
+        // }))
+        console.log("accountsInUser", !!accountsInUser);
+        // console.log("accounts", accounts);
+        if (!accountsInUser) {
+            return await accountCreateEditService({
+                name: `Efectivo`,
+                unitId: unit.id
+            })
+                .then(async (account) => {
+                    console.log("creada cuenta efectivo de unidad", unit.name, account.dataValues.id);
+                    return await payMethodCreateEditService({
+                        name: 'Efectivo',
+                        type: 'in',
+                        accountId: account?.dataValues?.id
+                    })
+                        .then(async (paymethodIn) => {
+                            await payMethodCreateEditService({
+                                name: 'Efectivo',
+                                type: 'out',
+                                accountId: account?.dataValues?.id
+                            })
+                                .then(async (paymethodOut) => {
+                                    return { success: true, message: 'Cuenta efectivo creada', }
+                                })
+                        })
+                })
+                .catch((error) => {
+                    console.log("Error al crear el metodo de pago", error);
+                    throw new Error("Error al crear la cuenta efectivo", error);;
+                })
+
+
+        } else {
+            return { success: false, message: 'Cuentas efectivo existente', }
+        }
+    }
+    catch (error) {
+        throw new Error({ success: false, message: "Error al gestionar las cuentas efectivo", error });
+    }
+}
+
+export const adjustAccountBalance = async (accountId, amount, description, type) => {
     try {
         const account = await AccountModel.findByPk(accountId);
         return await PayMethodModel.findAll({
@@ -182,20 +236,23 @@ export const adjustAccountBalance = async (accountId, amount, type) => {
         })
             .then(async (payMethod) => {
                 if (payMethod[0].dataValues) {
+                    let today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
                     return await transactionCreateEditService({
-                        description: "Ajuste de cuenta " + account.name,
+                        description: description ?? "Ajuste de cuenta " + account.name,
                         amount: Math.abs(parseFloat(amount)),
                         discount: 0,
                         type,
-                        date: new Date(),
+                        date: today,
                         unitId: account.unitId,
                         categoryId: null,
                         payMethodId: payMethod[0].dataValues.id
                     })
-                    .catch((error) => {
-                        console.log("Error al crear la transaccion", error);
-                        throw error;
-                    });
+                        .catch((error) => {
+                            console.log("Error al crear la transaccion", error);
+                            throw error;
+                        });
                 } else {
                     console.log("payMethodAdjustment no trae", payMethod);
                     throw new Error("Error al obtener el metodo de pago para crear ajuste");

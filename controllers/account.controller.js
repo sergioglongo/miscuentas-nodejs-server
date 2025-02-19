@@ -109,10 +109,10 @@ export async function createEditAccount(req, res, next) {
 
 export async function adjustAccount(req, res, next) {
     let data = req.body;
-    const { amount, type, accountId } = data;
+    const { amount, type, accountId, description } = data;
     try {
         // let account = await accountCreateEditService(data);
-        const account = await adjustAccountBalance(accountId, amount, type);
+        const account = await adjustAccountBalance(accountId, amount, description, type );
         if (account) {
             return res.json({
                 success: true,

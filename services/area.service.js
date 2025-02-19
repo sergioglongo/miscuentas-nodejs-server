@@ -1,4 +1,5 @@
 import AreaModel from "../models/areas.model.js";
+import CategoryModel from "../models/category.model.js";
 
 export const areaCreateEditService = async ({
     id,
@@ -17,8 +18,11 @@ export const areaCreateEditService = async ({
     try {
         if(id){
             area= await AreaModel.findByPk(id);
+            if(color && area.color !== color){
+                CategoryModel.update({color: color},{where: {areaId: id}});
+            }
             area.name = name.trim() ?? area.name;
-            area.description = description.trim() ?? area.description;
+            area.description = description?.trim() ?? area.description;
             area.color = color ?? area.color;
             area.icon = icon ?? area.icon;
             area.type = type ?? area.type;
@@ -27,8 +31,8 @@ export const areaCreateEditService = async ({
             area.default = is_default ?? area.default;
             area.unitId = unitId;
         } else {
-            area.name = name.trim();
-            area.description = description.trim() || null;
+            area.name = name?.trim();
+            area.description = description?.trim() || null;
             area.color = color || null;
             area.icon = icon || null;
             area.type = type || 'in';

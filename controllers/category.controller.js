@@ -18,19 +18,33 @@ export const getAllCatepories = async (req, res) => {
     }
 }
 
-export const getAllCateporiesByUnitId = async (req, res) => {
+export const getAllCateporiesBody = async (req, res) => {
     try {
-        const unitId = req.params.unitId;
-        const type = req.params.type;
-        const where = type ? { type, unitId: parseInt(unitId) } : { unitId: parseInt(unitId) };
-
+        const { type, unitId, is_active, deleted, areaId } = req.body;
+        // const unitId = req.params.unitId;
+        // const type = req.params.type;
+        // const where = type ? { type, unitId: parseInt(unitId) } : { unitId: parseInt(unitId) };
+       const where = {
+           ...areaId && { id: parseInt(areaId) },
+           ...(deleted !== undefined && { deleted }),
+           ...(is_active !== undefined && { is_active })
+        };
+        const whereArea = {
+            ...(unitId && { unitId: parseInt(unitId) }),
+            ...(type && { type }),
+        }
+        console.log("whereArea", whereArea);
+        console.log("where", where);
+        
+        
         const lista = await CategoryModel.findAll({
+            where,
             include: [
                 {
                     model: AreaModel,
                     required: true,
-                    attributes: ['name', 'type', 'color'],
-                    where
+                    attributes: ['id', 'name', 'type', 'color'],
+                    where: whereArea
                 }
             ],
         });

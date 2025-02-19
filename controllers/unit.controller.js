@@ -1,6 +1,7 @@
 import UnitModel from "../models/unit.model.js";
 import UserModel from "../models/user.model.js";
 import UserUnitModel from "../models/userUnit.model.js";
+import { manageAccounts } from "../services/account.service.js";
 import { unitCreateEditService } from "../services/unit.service.js";
 
 export const getAllUnits = async (req, res) => {
@@ -68,11 +69,13 @@ export async function createEditUnit(req, res, next) {
 
   try {
     let unit = await unitCreateEditService(data);
+    const accountCash = await manageAccounts(unit);
 
     if (unit) {
       return res.json({
         success: true,
-        message: "unit created",
+        message: "unit created/edited",
+        accountCash,
         unit,
       });
     }

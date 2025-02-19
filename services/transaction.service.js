@@ -5,6 +5,7 @@ import PayMethodModel from "../models/payMethod.model.js";
 import TransactionModel from "../models/transaction.model.js";
 import UnitModel from "../models/unit.model.js";
 import AreaModel from "../models/areas.model.js";
+import moment from "moment";
 
 export const transactionCreateEditService = async ({
     id,
@@ -64,7 +65,7 @@ export const transactionCreateEditService = async ({
             const payMethodIdOld = transaction?.payMethodId
             transaction.payMethodId = payMethodId || transaction?.payMethodId;
             transaction.categoryId = categoryId || transaction?.categoryId;
-            
+
             if (transaction.payMethodId === payMethodIdOld) {
                 if (transaction.amount !== amountOld) {
                     newBalance = (account.balance ? parseFloat(account.balance) : 0) + amountSigned - amountOldSigned
@@ -79,22 +80,31 @@ export const transactionCreateEditService = async ({
                 accountOld.update({ balance: newBalanceOld });
             }
         } else {
-            if (transaction.type === 'out') {
+            if (type === 'out') {
                 amountSigned = 0 - parseFloat(amount) || 0
             } else {
                 amountSigned = parseFloat(amount) || 0
             }
-            transaction.description = description.trim();
+            transaction.description = description?.trim();
             transaction.amount = amount || 0;
             transaction.discount = discount || 0;
             transaction.type = type || 'out';
             transaction.date = new Date(date);
+            // transaction.date.setUTCHours(0, 0, 0, 0);
             transaction.deleted = false;
             transaction.unitId = unitId;
             transaction.categoryId = categoryId;
             transaction.payMethodId = payMethodId;
             newBalance = (account.balance ? parseFloat(account.balance) : 0) + amountSigned
-            account.update({ balance: newBalance });
+            console.log("transaction to save", transaction);
+            console.log("account balance parsefloat", parseFloat(account.balance), "amountsigned", amountSigned);
+            console.log("newBalance", newBalance);
+
+            account.update({ balance: newBalance })
+                .catch((error) => {
+                    console.log("error al actualizar balance", error);
+
+                })
         }
 
         let transactionSaved = await transaction.save()
@@ -114,13 +124,17 @@ export const transactionCreateEditService = async ({
     }
 }
 
-export const TransactionsByUnitAndAccount = async({
+export const TransactionsByUnitAndAccount = async ({
     unitId,
     account,
     type,
     dateFrom,
     dateTo
 }) => {
+    const dateFromHour = moment(dateFrom).startOf('day').subtract(1, 'minutes').format('YYYY-MM-DD HH:mm:ss');
+    const dateToHour = moment(dateTo).endOf('day').add(1, 'minutes').format('YYYY-MM-DD HH:mm:ss');
+    console.log("dateFromHour", dateFromHour, "dateToHour", dateToHour);
+
     try {
         const lista = await TransactionModel.findAll({
             include: [
@@ -146,7 +160,7 @@ export const TransactionsByUnitAndAccount = async({
                 },
                 {
                     model: CategoryModel,
-                    required: true,
+                    // required: true,
                     attributes: ['name'],
                     include: [
                         {
@@ -159,11 +173,12 @@ export const TransactionsByUnitAndAccount = async({
             ],
             where: {
                 date: {
-                    [Op.between]: [dateFrom, dateTo]
+                    // [Op.between]: [dateFrom, dateTo]
+                    [Op.between]: [dateFromHour || moment().startOf('month').toDate(), dateToHour || moment().toDate()]
                 }
             },
             order: [
-                ['date', 'DESC'] // o 'DESC' si lo deseas en orden descendente
+                ['date', 'ASC'] // o 'DESC' si lo deseas en orden descendente
             ],
         });
 
@@ -171,5 +186,38 @@ export const TransactionsByUnitAndAccount = async({
     } catch (error) {
         console.log("error al obtener transacciones", error);
         throw new Error("Error al obtener las transacciones", error);
+    }
+}
+
+export const transactionDeleteService = async (id) => {
+    try {
+        let newBalance = 0;
+
+        if (id) {
+            const transactionFinded = await TransactionModel.findByPk(id);
+            const payMethod = await PayMethodModel.findByPk(transactionFinded?.payMethodId);
+            const account = await AccountModel.findByPk(payMethod?.accountId);
+
+            let amountSigned = (transactionFinded.type === 'in')
+                ? parseFloat(transactionFinded.amount) || 0
+                : 0 - parseFloat(transactionFinded.amount) || 0
+            newBalance = (account.balance ? parseFloat(account.balance) : 0) - amountSigned;
+            account.update({ balance: newBalance });
+            let transaction = await TransactionModel.destroy({ where: { id } });
+            if (transaction) {
+                return {
+                    success: true,
+                    message: "Transaction deleted",
+                    transaction,
+                }
+            } else {
+                throw new Error("Error al borrar la transaccion");
+            }
+        } else {
+            throw new Error("Error al obtener la transaccion a borrar", error);
+        }
+    } catch (error) {
+        console.log("error al eliminar transaccion", error);
+        throw new Error("Error al eliminar la transaccion", error);
     }
 }

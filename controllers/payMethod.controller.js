@@ -3,6 +3,7 @@ import { accountCreateEditService } from "../services/account.service.js";
 import UnitModel from "../models/unit.model.js";
 import AccountModel from "../models/account.model.js";
 import { payMethodCreateEditService } from "../services/payMethod.service.js";
+import { Sequelize } from "sequelize";
 
 export const getAllPayMethods = async (req, res) => {
     try {
@@ -58,9 +59,11 @@ export const getAllPayMethodsByUnitId = async (req, res) => {
         console.log("data que llega", data);
 
         const where = {
-            ...(data.type && { type: data.type }),
-            ...(data.deleted !== undefined && { deleted: data.deleted }),
-            ...(data.is_active !== undefined && { is_active: data.is_active })
+          ...(data.type && { type: data.type }),
+        //   ...(data.include_adjustments && { type: { [Sequelize.Op.or]: ["adjustment", data.type] } }),
+        //   ...(data.method && { method: data.method }),
+        //   ...(data.deleted !== undefined && { deleted: data.deleted }),
+        //   ...(data.is_active !== undefined && { is_active: data.is_active })
         };
         console.log("where", where);
 
@@ -69,7 +72,7 @@ export const getAllPayMethodsByUnitId = async (req, res) => {
                 {
                     model: AccountModel,
                     required: true,
-                    attributes: ['name'],
+                    attributes: ['id', 'name', 'type','is_active'],
                     where: { unitId: data.unitId }
                 }
             ],

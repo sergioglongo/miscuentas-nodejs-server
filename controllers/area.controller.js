@@ -38,6 +38,30 @@ export const getAllAreasByUnitId = async (req, res) => {
     res.status(500).send({ success: false, message: error.message });
   }
 }
+export const getAllAreasBody = async (req, res) => {
+  try {
+    const { unitId, type, is_active } = req.body;
+    // const where = type ? { type, unitId: parseInt(unitId) } : { unitId: parseInt(unitId) };
+    const where = {
+      ...unitId && { unitId: parseInt(unitId) },
+      ...type && { type },
+      ...(is_active !== undefined && { is_active })
+   };
+   
+    const lista = await AreaModel.findAll({
+      where
+    });
+
+    res.status(200).send({
+      success: true,
+      result: lista,
+      count: lista?.length || 0
+    });
+
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+}
 export const getAreaById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -46,6 +70,7 @@ export const getAreaById = async (req, res) => {
         include: [
           {
             model: CategoryModel,
+            required:false,
             attributes: ['id', 'name', 'description', 'color', 'icon','is_active'],
             where: { deleted: false }
           }
