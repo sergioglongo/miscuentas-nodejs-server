@@ -2,6 +2,7 @@ import AccountModel from "../models/account.model.js";
 import { accountCreateEditService, adjustAccountBalance } from "../services/account.service.js";
 import UnitModel from "../models/unit.model.js";
 import PayMethodModel from "../models/payMethod.model.js";
+import { Op } from "sequelize";
 
 export const getAllAccounts = async (req, res) => {
     try {
@@ -46,6 +47,70 @@ export const getAllAccountsByUnitId = async (req, res) => {
             success: true,
             result: lista,
             count: lista?.length || 0
+        });
+
+    } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+    }
+}
+
+export const getAllAccountsForTransfer = async (req, res) => {
+    try {
+        const { is_active, unitId } = req.body;
+        // const where = is_active !== undefined ? { is_active } : null;
+        const where = {
+            ...(is_active !== undefined && { is_active }),
+            ...unitId && { unitId },
+            // ...deleted && { deleted }
+        };
+        const listIn = await AccountModel.findAll({
+            include: [
+                {
+                    model: PayMethodModel,
+                    required: true,
+                    attributes: [],
+                    where: { 
+                        deleted: false,
+                        is_active: true,
+                        type: 'in',
+                        [Op.or]: [
+                            { method: 'transfer' },
+                            { method: 'cash' },
+                          ]
+                     }
+                },
+            ],
+            where,
+        });
+        const listOut = await AccountModel.findAll({
+            include: [
+                {
+                    model: PayMethodModel,
+                    required: true,
+                    attributes: [],
+                    where: { 
+                        deleted: false,
+                        is_active: true,
+                        type: 'out',
+                        [Op.or]: [
+                            { method: 'transfer' },
+                            { method: 'cash' },
+                            
+                          ],
+                          
+                     }
+                },
+            ],
+            where,
+        });
+        res.status(200).send({
+            success: true,
+            result: {
+                listIn,
+                listOut,
+                listInCount: listIn?.length || 0,
+                listOutCount: listOut?.length || 0
+            }
         });
 
     } catch (error) {

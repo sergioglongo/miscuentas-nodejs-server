@@ -7,6 +7,8 @@ import TransactionModel from "../models/transaction.model.js";
 import { transactionCreateEditService, transactionDeleteService, TransactionsByUnitAndAccount } from "../services/transaction.service.js";
 import CategoryModel from "../models/category.model.js";
 import AreaModel from "../models/areas.model.js";
+import moment from "moment";
+import { Op } from "sequelize";
 
 export const getAllTransactions = async (req, res) => {
     try {
@@ -75,8 +77,16 @@ export const getAllTransactionsBody = async (req, res) => {
     try {
         let data = req.body;
         console.log("data que llega getAllTransactionBody", data);
-
-
+        let where = {}
+        if (data.dateFrom) {
+            const dateFromHour = moment(data?.dateFrom).startOf('day').subtract(1, 'minutes').format('YYYY-MM-DD HH:mm:ss');
+            const dateToHour = moment(data?.dateTo || moment().toDate()).endOf('day').add(1, 'minutes').format('YYYY-MM-DD HH:mm:ss');
+            where = {
+                date: {
+                    [Op.between]: [dateFromHour, dateToHour]
+                }
+            }
+        }
         const lista = await TransactionModel.findAll({
             include: [
                 {
@@ -113,6 +123,7 @@ export const getAllTransactionsBody = async (req, res) => {
                     where: data.categoryId ? { id: data.categoryId } : null,
                 }
             ],
+            where,
             order: [
                 ['date', 'DESC'],
                 ['id', 'DESC']
@@ -133,7 +144,7 @@ export const getAllTransactionsBody = async (req, res) => {
 export async function getAllTransactionsByUnitAndAccount(req, res, next) {
     let data = req.body;
     console.log("data que llega", data);
-    
+
     try {
         let transaction = await TransactionsByUnitAndAccount(data);
         let { account } = data;

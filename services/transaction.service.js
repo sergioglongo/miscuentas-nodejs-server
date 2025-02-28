@@ -20,11 +20,11 @@ export const transactionCreateEditService = async ({
     payMethodId,
 }) => {
     let transaction = new TransactionModel();
-    console.log("data que llega", { description, amount, discount, type, date, deleted, unitId, categoryId, payMethodId, date });
+    console.log("data que llega a transaction CreateEditService", { description, amount, discount, type, date, deleted, unitId, categoryId, payMethodId, date });
 
     try {
         const unit = await UnitModel.findByPk(unitId);
-        const category = await CategoryModel.findByPk(categoryId);
+        const category = await CategoryModel.findByPk(categoryId) || null;
         const payMethod = await PayMethodModel.findByPk(payMethodId);
         const account = await AccountModel.findByPk(payMethod?.accountId);
 
@@ -32,7 +32,7 @@ export const transactionCreateEditService = async ({
             console.log("Unidad no encontrada");
             throw new Error("Unidad no encontrada");
         }
-        if (!category && categoryId !== null) {
+        if (!category && categoryId) {
             console.log("Categoria no encontrada");
             throw new Error("Categoria no encontrada");
         }
@@ -64,7 +64,7 @@ export const transactionCreateEditService = async ({
             transaction.unitId = unitId || transaction?.unitId;
             const payMethodIdOld = transaction?.payMethodId
             transaction.payMethodId = payMethodId || transaction?.payMethodId;
-            transaction.categoryId = categoryId || transaction?.categoryId;
+            transaction.categoryId = categoryId || transaction?.categoryId || null;
 
             if (transaction.payMethodId === payMethodIdOld) {
                 if (transaction.amount !== amountOld) {
@@ -89,16 +89,16 @@ export const transactionCreateEditService = async ({
             transaction.amount = amount || 0;
             transaction.discount = discount || 0;
             transaction.type = type || 'out';
-            transaction.date = new Date(date);
+            transaction.date = date ? new Date(date) : new Date();
             // transaction.date.setUTCHours(0, 0, 0, 0);
             transaction.deleted = false;
             transaction.unitId = unitId;
-            transaction.categoryId = categoryId;
+            transaction.categoryId = categoryId || null;
             transaction.payMethodId = payMethodId;
             newBalance = (account.balance ? parseFloat(account.balance) : 0) + amountSigned
-            console.log("transaction to save", transaction);
-            console.log("account balance parsefloat", parseFloat(account.balance), "amountsigned", amountSigned);
-            console.log("newBalance", newBalance);
+            // console.log("transaction to save", transaction);
+            // console.log("account balance parsefloat", parseFloat(account.balance), "amountsigned", amountSigned);
+            // console.log("newBalance", newBalance);
 
             account.update({ balance: newBalance })
                 .catch((error) => {
@@ -133,7 +133,6 @@ export const TransactionsByUnitAndAccount = async ({
 }) => {
     const dateFromHour = moment(dateFrom).startOf('day').subtract(1, 'minutes').format('YYYY-MM-DD HH:mm:ss');
     const dateToHour = moment(dateTo).endOf('day').add(1, 'minutes').format('YYYY-MM-DD HH:mm:ss');
-    console.log("dateFromHour", dateFromHour, "dateToHour", dateToHour);
 
     try {
         const lista = await TransactionModel.findAll({

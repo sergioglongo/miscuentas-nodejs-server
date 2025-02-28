@@ -104,8 +104,8 @@ export const PaymentsResumeByArea = async (unitId, initDate, endDate, type) => {
                             model: AreaModel,
                             as: 'area',
                             required: true,
-                            attributes: ['id', 'name', 'color', 'icon'],
-                            where: type ? { type } : null
+                            attributes: ['id', 'name', 'color', 'icon','type'],
+                            where: type ? { type, unitId } : { unitId}
                             // group: ['name'],
                         }
                     ]
@@ -119,16 +119,24 @@ export const PaymentsResumeByArea = async (unitId, initDate, endDate, type) => {
             group: ['category.area.name'],
             attributes: [
                 [sequelize.fn('sum', sequelize.col('amount')), 'total_amount',],
+                [sequelize.col('category.area.type'), 'type']
             ],
             order: [
                 ['total_amount', 'DESC']
             ]
         });
         // console.log("lista de areas", lista);
-        let total = 0;
-        lista.map((item) => total += parseFloat(item.dataValues.total_amount));
-        const report = Object.values(lista);
-        const listaReturn = {report, total};
+        const listaIn = lista.filter(item => item.dataValues.type == 'in');
+        const listaOut = lista.filter(item => item.dataValues.type == 'out');
+        
+        let totalIn = 0;
+        listaIn.map((item) => totalIn += parseFloat(item.dataValues.total_amount));
+        let totalOut = 0;
+        listaOut.map((item) => totalOut += parseFloat(item.dataValues.total_amount));
+        const total = {in: totalIn, out: totalOut};
+        const reportIn = Object.values(listaIn);
+        const reportOut = Object.values(listaOut);
+        const listaReturn = {report : {in: {reportIn, total: totalIn}, out: {reportOut, total: totalOut}}, total};
         return listaReturn;
     } catch (error) {
         console.log("error", error);

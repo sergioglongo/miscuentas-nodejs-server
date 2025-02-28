@@ -8,6 +8,7 @@ import accountRouter from './accounts.route.js';
 import payMethodRouter from './payMethod.routes.js';
 import transactionsRouter from './transactions.routes.js';
 import reportsRouter from './reports.route.js';
+import transfersRouter from './transfer.route.js';
 
 const mainRoute = express.Router();
 
@@ -18,6 +19,7 @@ mainRoute.use("/unit", unitsRouter);
 mainRoute.use("/area", areaRouter);
 mainRoute.use("/category", categoryRouter);
 mainRoute.use("/transaction", transactionsRouter);
+mainRoute.use("/transfer", transfersRouter);
 mainRoute.use("/reports", reportsRouter);
 mainRoute.use("/params", paramsRouter);
 

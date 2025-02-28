@@ -1,11 +1,13 @@
 import express from 'express';
 import db from './db.js';
-import dotenv from 'dotenv';
+// import dotenv from 'dotenv';
 import mainRoute from './routes/index.routes.js';
 import cors from 'cors';
 
-//version 0.0.4
-dotenv.config();
+//version 0.0.5
+// dotenv.config();
+process.loadEnvFile();
+
 const baseURL = (process.env.NODE_ENV === 'development' ? `http://localhost:${process.env.SERVER_PORT}` : `${process.env.SERVER_HOST}`) + '';
 
 const app = express();
