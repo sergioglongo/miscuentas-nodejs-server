@@ -16,15 +16,7 @@ import { manageAccounts } from "../services/account.service.js";
 export const getAllUser = async (req, res) => {
   try {
     const where = { ...req.query };
-    const accounts = await AccountModel.findAll();
-    const areas = await AreaModel.findAll();
-    const categories = await CategoryModel.findAll();
-    const pay_methods = await PayMethodModel.findAll();
-    const transactions = await TransactionModel.findAll();
-    const transfers = await TransferModel.findAll();
-    const units = await Unit.findAll();
     const lista = await UserModel.findAll({ where });
-    const user_unit = await UserUnitModel.findAll();
 
     res.status(200).send({ success: true, result: lista, count: lista.length || 0 });
   } catch (error) {
@@ -48,36 +40,36 @@ export const signIn = async (req, res, next) => {
 }
 export const signUp = async (req, res, next) => {
   const data = req.body;
-
+  const unitName = req.body.name;
   try {
     console.log("Datos que llegan", data);
     
     const user = await userCreateEditService(data);
-    const unit = await unitCreateEditService(data);
-
-    const userUnit = await UserUnitModel.create({
-      userId: user.id,
-      unitId: unit.id,
+    if (!user) {
+      throw new Error("Error creating user");
+    }
+    const dataWithUser = {
+      name: unitName,
+      userid: user.id,
       type: 'owner',
       permissions: { admin: true, user: true, guest: true },
-      is_active: true,
       is_main_unit: true
+    }
+    const unit = await unitCreateEditService(dataWithUser);
+    if (!unit) {
+      throw new Error("Error creating unit");
+    }
+
+    return res.json({
+      success: true,
+      message: "User and unit created",
+      user: user,
+      unit: unit,
     });
 
-    if (userUnit) {
-      return res.json({
-        success: true,
-        message: "User and unit created",
-        user: user,
-        unit: unit,
-        userUnit: userUnit
-      });
-    }
   } catch (error) {
     console.log(error);
-
     let error_message = error.message;
-
     res.status(500).send({ success: false, message: error_message, error: error });
   }
 }

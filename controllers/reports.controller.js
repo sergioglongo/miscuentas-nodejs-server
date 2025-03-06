@@ -110,6 +110,7 @@ export const reportAreasdMonthToMonthByUnitId = async (req, res) => {
         if (!unitId) throw new Error("UnitId es requerido");
         const report = await Promise.all(meses.map(async (mes) => {
             const paymentsResume = await PaymentsResumeByArea(unitId, mes.startDate, mes.endDate, type);
+            if (!paymentsResume) return null;
             paymentsResume.mes = mes.mes;
             paymentsResume.anio = mes.anio;
             return paymentsResume;

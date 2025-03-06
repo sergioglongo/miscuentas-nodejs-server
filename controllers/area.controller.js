@@ -1,4 +1,3 @@
-import { areasInitials } from "../config/initialData/area.init.js";
 import AreaModel from "../models/areas.model.js";
 import CategoryModel from "../models/category.model.js";
 import { areaCreateEditService, areaDefaultsCreateService } from "../services/area.service.js";

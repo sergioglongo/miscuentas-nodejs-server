@@ -2,6 +2,7 @@ import { createToken } from "../tools/token.js";
 import { compareHash, encodeHash } from "../tools/hash.js";
 import UsersModel from "../models/user.model.js";
 import UnitModel from "../models/unit.model.js";
+import AreaModel from "../models/areas.model.js";
 
 export const signService = async ({ email, username, password, google_id }) => {
 	const selectedUser = await UsersModel
@@ -9,16 +10,19 @@ export const signService = async ({ email, username, password, google_id }) => {
 			email
 				? {
 					where: { email: email },
-					include: { model: UnitModel },
+					include: [{ model: UnitModel, through: { attributes: ['is_main_unit'] } }],
+					nest: true
 				}
 				: google_id
 					? {
 						where: { google_id: google_id },
-						include: { model: UnitModel },
+						include: [{ model: UnitModel, through: { attributes: ['is_main_unit'] } }],
+						nest: true
 					}
 					: {
 						where: { username: username },
-						include: { model: UnitModel },
+						include: [{ model: UnitModel, through: { attributes: ['is_main_unit'] } }],
+						nest: true
 					},
 		)
 		.catch((error) => {
@@ -41,17 +45,51 @@ export const signService = async ({ email, username, password, google_id }) => {
 			}
 
 			if (selectedUser && compare_password) {
-				const units = selectedUser?.dataValues?.units;
-				const unitMain = units.find((unit) => unit?.user_unit.is_main_unit === true);
-				const unitMainClean = JSON.parse(JSON.stringify(unitMain));
-				delete unitMainClean.user_unit;
-				const { password, ...userWithoutPassword } = selectedUser?.dataValues;
-				const userWithToken = {
-					user: userWithoutPassword,
-					unitMain: unitMainClean,
-					accessToken: createToken(selectedUser, "user"),
-				};
-				return userWithToken;
+				const units = selectedUser.units;
+				const unitsData = await Promise.all(units.map(async unit => {
+					const areaCount = await AreaModel.count({ where: { unitId: unit.id, deleted: false } });
+					return {
+						id: unit.id,
+						name: unit.name,
+						description: unit.description,
+						photo: unit.photo,
+						is_active: unit.is_active,
+						is_main_unit: unit.user_unit.is_main_unit,
+						inicialized: areaCount > 0
+					};
+				}));
+				console.log("unitsData", unitsData);
+				
+				const unitMain = unitsData.find((unit) => unit.is_main_unit === true);
+				if (units.length > 0) {
+					const userData = {
+						id: selectedUser.id,
+						firstname: selectedUser.firstname,
+						lastname: selectedUser.lastname,
+						email: selectedUser.email,
+						photo: selectedUser.photo,
+						permissions: selectedUser.permissions,
+						type: selectedUser.type,
+						is_active: selectedUser.is_active,
+						is_premium: selectedUser.is_premium,
+						last_login_date: selectedUser.last_login_date,
+						register_date: selectedUser.register_date
+					};
+					const userWithToken = {
+						user: userData,
+						units: unitsData,
+						main_unit: unitMain ? {
+							id: unitMain.id,
+							name: unitMain.name,
+							description: unitMain.description,
+							photo: unitMain.photo,
+							is_active: unitMain.is_active,
+							initialized: unitMain.inicialized
+						} : null,
+						accessToken: createToken(selectedUser, "user")
+					};
+					return userWithToken;
+				}
 			}
 		}
 	}

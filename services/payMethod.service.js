@@ -26,13 +26,14 @@ export const payMethodCreateEditService = async ({
             payMethod.is_active = is_active ?? payMethod?.is_active ?? true;
             payMethod.type = type || payMethod?.type || 'in';
             payMethod.deleted = deleted ?? payMethod?.deleted ?? false;
+            payMethod.excluded = excluded ?? payMethod?.method === 'cash';
             payMethod.default = is_default ?? payMethod?.default ?? false;
             payMethod.accountId = accountId || payMethod?.accountId;
         } else {
             payMethod.name = name.trim();
             payMethod.method = method || 'cash';
             payMethod.type = type || 'in';
-            payMethod.excluded = excluded ?? false;
+            payMethod.excluded = excluded ?? method === 'cash';
             payMethod.deleted = deleted ?? false;
             payMethod.is_active = is_active ?? true;
             payMethod.default = is_default ?? false;
@@ -45,7 +46,7 @@ export const payMethodCreateEditService = async ({
         return payMethodSaved;
     } catch (error) {
         console.log("Error al crear el metodo de pago en catch de payMethodCreateEditService", error);
-        
+
         throw new Error("Error al crear el metodo de pago", error);
     }
 }

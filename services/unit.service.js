@@ -16,6 +16,8 @@ export const unitCreateEditService = async ({
 }) => {
     let unit = new UnitModel();
     let unitsaved;
+    console.log("data que llega antes de try", {id, name, description, photo, is_premium, is_active, deleted, userid, permissions, is_main_unit, type});
+    
     try {
         if(id) {
             unit = await UnitModel.findByPk(id);
@@ -31,7 +33,7 @@ export const unitCreateEditService = async ({
             console.log("data que llega", {name, description, photo, is_premium, is_active, deleted, userid, permissions, is_main_unit, type});
             
             unit.name = name?.trim();
-            unit.description = description?.trim() || null;
+            unit.description = description?.trim() ?? '';
             unit.photo = photo || null;
             unit.is_premium = is_premium ?? false;
             unit.last_change_date = new Date();

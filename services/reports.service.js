@@ -116,7 +116,7 @@ export const PaymentsResumeByArea = async (unitId, initDate, endDate, type) => {
                     [sequelize.Op.between]: [initDate || moment().startOf('month').toDate(), endDate || moment().toDate()]
                 }
             },
-            group: ['category.area.name'],
+            group: ['category.area.name', 'category.area.type', 'category.area.id', 'category.area.color', 'category.area.icon', 'category.id'],
             attributes: [
                 [sequelize.fn('sum', sequelize.col('amount')), 'total_amount',],
                 [sequelize.col('category.area.type'), 'type']
