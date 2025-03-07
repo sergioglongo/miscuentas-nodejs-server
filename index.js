@@ -6,11 +6,11 @@ import cors from 'cors';
 
 //version 0.1.1
 // dotenv.config();
-try {
-    process.loadEnvFile();
-} catch (error) {
-    console.log('No .env file found, using environment variables');
-}
+// try {
+//     process.loadEnvFile();
+// } catch (error) {
+//     console.log('No .env file found, using environment variables');
+// }
 
 const app = express();
 app.use(cors());
