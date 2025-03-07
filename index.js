@@ -4,7 +4,7 @@ import db from './db.js';
 import mainRoute from './routes/index.routes.js';
 import cors from 'cors';
 
-//version 0.0.5
+//version 0.1.0
 // dotenv.config();
 process.loadEnvFile();
 
@@ -31,7 +31,10 @@ async function database() {
 }
 
 try {
-    app.listen({ port: process.env.PORT });
+    const port = process.env.PORT || 3000;
+    app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+    });
     database();
 } catch (error) {
     console.log(error);
@@ -46,3 +49,4 @@ app.use("/api/", mainRoute);
 app.use('/uploads', express.static('uploads'));
 // const __dirname = path.resolve();
 // app.use('/media', express.static(path.join(__dirname, 'media_downloads')));
+export default app;
