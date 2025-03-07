@@ -18,7 +18,7 @@ const options = {
   }
 };
 
-// Add SSL configuration only in production
+// Add SSL configuration for production environment
 if (env === 'production') {
   options.dialectOptions = {
     ssl: {
@@ -26,6 +26,8 @@ if (env === 'production') {
       rejectUnauthorized: false
     }
   };
+  // Add additional production configurations if needed
+  options.logging = false;
 }
 
 const sequelize = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, options);
