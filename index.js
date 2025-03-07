@@ -1,11 +1,11 @@
 import express from 'express';
 import db from './db.js';
-// import dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import mainRoute from './routes/index.routes.js';
 import cors from 'cors';
 
 //version 0.1.1
-// dotenv.config();
+dotenv.config();
 // try {
 //     process.loadEnvFile();
 // } catch (error) {
