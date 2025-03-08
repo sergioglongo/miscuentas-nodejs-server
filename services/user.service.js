@@ -184,8 +184,8 @@ export const userCreateEditService = async ({
 	if (!user_saved) {
 		throw new Error(user_saved);
 	}
-
-	const accessToken = createToken(user_saved, "user");
+	
+	const accessToken = createToken(user_saved?.dataValues, "user");
 	const { password: pass, ...userWithoutPassword } = user_saved?.dataValues;
 	const userWithToken = { ...userWithoutPassword, accessToken };
 
