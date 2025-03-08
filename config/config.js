@@ -1,6 +1,8 @@
-// import dotenv from 'dotenv';
-process.loadEnvFile();
-// dotenv.config();
+import dotenv from 'dotenv';
+// process.loadEnvFile();
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 // Realizar el cambio de formar un objeto que obtenga las variables de entorno y despues pasarle al export default es mas eficiente
 // asi la lectura del env es una sola vez y ya queda guardado en la variable
 export default {

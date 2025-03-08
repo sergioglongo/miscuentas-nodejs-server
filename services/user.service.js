@@ -2,6 +2,7 @@ import { createToken } from "../tools/token.js";
 import { compareHash, encodeHash } from "../tools/hash.js";
 import UsersModel from "../models/user.model.js";
 import UnitModel from "../models/unit.model.js";
+import AccountModel from "../models/account.model.js";
 
 export const signService = async ({ email, username, password, google_id }) => {
 	const selectedUser = await UsersModel
@@ -45,7 +46,6 @@ export const signService = async ({ email, username, password, google_id }) => {
 
 			if (selectedUser && compare_password) {
 				const units = selectedUser.units;
-				const unitMain = units.find((unit) => unit.user_unit.is_main_unit === true);
 				const unitsData = units.map(unit => ({
 					id: unit.id,
 					name: unit.name,
@@ -54,6 +54,13 @@ export const signService = async ({ email, username, password, google_id }) => {
 					is_active: unit.is_active,
 					is_main_unit: unit.user_unit.is_main_unit
 				}));
+				const unitMain = unitsData.find((unit) => unit.is_main_unit === true);
+				const isInitializedUnit = await AccountModel.findOne({
+					where: {
+						unitId: unitMain.id
+					}
+				})
+				isInitializedUnit?.dataValues ? unitMain.initialized = true : unitMain.initialized = false;
 				if (units.length > 0) {
 					const userData = {
 						id: selectedUser.id,
@@ -76,7 +83,8 @@ export const signService = async ({ email, username, password, google_id }) => {
 							name: unitMain.name,
 							description: unitMain.description,
 							photo: unitMain.photo,
-							is_active: unitMain.is_active
+							is_active: unitMain.is_active,
+							initialized: unitMain.initialized
 						} : null,
 						accessToken: createToken(selectedUser, "user")
 					};

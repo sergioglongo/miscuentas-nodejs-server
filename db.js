@@ -1,14 +1,19 @@
 import { Sequelize } from 'sequelize';
-import config from './config/config.js'; // Asegúrate de que la ruta es correcta
 import mysql from 'mysql2';
+import dotenv from 'dotenv';
+
 import pg from 'pg';
+
 const env = process.env.NODE_ENV || 'development';
-const dbConfig = config[env];
+if (env !== 'production') {
+  dotenv.config();
+}
+// const dbConfig = config[env];
 
 const options = {
-  host: dbConfig.host,
-  dialect: dbConfig.dialect,
-  logging: dbConfig.logging,
+  host: process.env.DB_HOST,
+  logging: false,
+  dialect: process.env.DB_TYPE,
   dialectModule: pg,
   pool: {
     max: 5,
@@ -30,6 +35,6 @@ if (env === 'production') {
   options.logging = false;
 }
 
-const sequelize = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, options);
+const sequelize = new Sequelize(process.env.DB_DATABASE, process.env.DB_USERNAME, process.env.DB_PASSWORD, options);
 
 export default sequelize;

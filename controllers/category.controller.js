@@ -2,7 +2,7 @@ import AreaModel from "../models/areas.model.js";
 import CategoryModel from "../models/category.model.js";
 import { categoryCreateEditService } from "../services/category.service.js";
 
-export const getAllCatepories = async (req, res) => {
+export const getAllCategories = async (req, res) => {
     try {
         const where = { ...req.query };
         const lista = await CategoryModel.findAll({ where });
@@ -18,7 +18,7 @@ export const getAllCatepories = async (req, res) => {
     }
 }
 
-export const getAllCateporiesBody = async (req, res) => {
+export const getAllCategoriesBody = async (req, res) => {
     try {
         const { type, unitId, is_active, deleted, areaId } = req.body;
         // const unitId = req.params.unitId;
@@ -33,10 +33,7 @@ export const getAllCateporiesBody = async (req, res) => {
             ...(unitId && { unitId: parseInt(unitId) }),
             ...(type && { type }),
         }
-        console.log("whereArea", whereArea);
-        console.log("where", where);
-        
-        
+
         const lista = await CategoryModel.findAll({
             where,
             include: [

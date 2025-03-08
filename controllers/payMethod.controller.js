@@ -56,8 +56,7 @@ export const getAllPayMethodsByUnitIdDeprecated = async (req, res) => {
 export const getAllPayMethodsByUnitId = async (req, res) => {
     try {
         let data = req.body;
-        console.log("data que llega", data);
-
+  
         const where = {
           ...(data.type && { type: data.type }),
         //   ...(data.include_adjustments && { type: { [Sequelize.Op.or]: ["adjustment", data.type] } }),
@@ -65,8 +64,7 @@ export const getAllPayMethodsByUnitId = async (req, res) => {
         //   ...(data.deleted !== undefined && { deleted: data.deleted }),
         //   ...(data.is_active !== undefined && { is_active: data.is_active })
         };
-        console.log("where", where);
-
+  
         const lista = await PayMethodModel.findAll({
             include: [
                 {
