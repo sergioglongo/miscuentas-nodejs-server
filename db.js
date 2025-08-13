@@ -27,7 +27,7 @@ const options = {
 if (env === 'production') {
   options.dialectOptions = {
     ssl: {
-      require: true,
+      require: false,
       rejectUnauthorized: false
     }
   };
