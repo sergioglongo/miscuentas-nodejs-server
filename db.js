@@ -36,6 +36,7 @@ if (env === 'production') {
   // Add additional production configurations if needed
   options.logging = false;
 }
+console.log("Database connection options:", options);
 
 const sequelize = new Sequelize(process.env.DB_DATABASE, process.env.DB_USERNAME, process.env.DB_PASSWORD, options);
 
