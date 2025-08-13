@@ -5,9 +5,7 @@ import dotenv from 'dotenv';
 import pg from 'pg';
 
 const env = process.env.NODE_ENV || 'development';
-console.log("Environment:", env);
-
-if (env == 'production') {
+if (env !== 'production') {
   dotenv.config();
 }
 // const dbConfig = config[env];
@@ -29,7 +27,7 @@ const options = {
 if (env === 'production') {
   options.dialectOptions = {
     ssl: {
-      require: false,
+      require: true,
       rejectUnauthorized: false
     }
   };
@@ -37,6 +35,8 @@ if (env === 'production') {
   options.logging = false;
 }
 console.log("Database connection options:", options);
+console.log("Process environment:", process.env.NODE_ENV);
+
 
 const sequelize = new Sequelize(process.env.DB_DATABASE, process.env.DB_USERNAME, process.env.DB_PASSWORD, options);
 
