@@ -27,11 +27,14 @@ export const signIn = async (req, res, next) => {
   try {
     let userSignIn = await signService(req.body);
     if (userSignIn) {
-      return res.status(200).json({
-        success: true,
-        message: "User logged",
-        user: userSignIn,
-      });
+      if( userSignIn.success){
+        return res.status(200).json(userSignIn);
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "Datos incorrectos",
+        })
+      }
     }
   } catch (error) {
     let errorMessage = error.message;

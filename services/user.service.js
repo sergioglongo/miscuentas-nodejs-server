@@ -39,9 +39,10 @@ export const signService = async ({ email, username, password, google_id }) => {
 				password,
 				selectedUser.password,
 			);
-
+			console.log("compare_password", compare_password);
+			
 			if (!compare_password) {
-				throw new Error("Datos incorrectos");
+				return {success: false, message: "Datos incorrectos"};
 			}
 
 			if (selectedUser && compare_password) {
@@ -88,7 +89,7 @@ export const signService = async ({ email, username, password, google_id }) => {
 						} : null,
 						accessToken: createToken(selectedUser, "user")
 					};
-					return userWithToken;
+					return {success: true, message: "Login exitoso", user: userWithToken};
 				}
 			}
 		}
@@ -113,7 +114,7 @@ export const signService = async ({ email, username, password, google_id }) => {
 			type: selectedUser.type,
 		};
 	}
-	throw new Error("Datos incorrectos");
+	throw new Error("Datos incorrectos Error");
 }
 
 export const userCreateEditService = async ({

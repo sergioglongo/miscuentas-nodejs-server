@@ -29,6 +29,7 @@ export const accountCreateEditService = async ({
             throw new Error("Unidad no encontrada");
         }
         if (id) {
+            
             account = await AccountModel.findByPk(id);
             account.name = name?.trim() ?? account?.name;
             account.balance = balance || account?.balance || 0;
@@ -38,7 +39,12 @@ export const accountCreateEditService = async ({
             account.deleted = deleted ?? false;
             account.default = is_default ?? false;
             account.unitId = unitId;
-
+            console.log("account", account?.dataValues);
+            
+            await managePayMethods(account?.dataValues, pay_methods).catch((error) => {
+                console.log("Error al gestionar paymethods", error);
+                throw new Error("Error al gestionar paymethods", error);
+            })
         } else {
             account.name = name.trim();
             account.balance = balance || 0;
@@ -51,26 +57,36 @@ export const accountCreateEditService = async ({
                 throw error;
             });
 
-        await managePayMethods(accountSaved, pay_methods);
-
         return accountSaved;
     } catch (error) {
+        console.log("Error al crear la cuenta", error);
+        
         throw new Error("Error al crear el account", error);
     }
 }
 
 const managePayMethods = async (account, pay_methods) => {
+    console.log("managePayMethods", account?.id, pay_methods);
+    
     try {
         const payMethodsInAccount = await PayMethodModel.findAll({
             where: {
                 accountId: account.id,
-                type: { [Sequelize.Op.and]: [{ [Sequelize.Op.ne]: 'adjustment' }, { [Sequelize.Op.ne]: 'cash' }] }
+                [Sequelize.Op.or]: [
+                    { method: { [Sequelize.Op.ne]: 'cash' } },
+                    { type: { [Sequelize.Op.ne]: 'adjustment' } }
+                  ]
             },
             attributes: ['method', 'deleted', 'type'],
-            group: ['method'],
+            group: ['method', 'deleted', 'type'],
             distinct: true
-        });
-        const payMethods = await Promise.all(payMethodsInAccount.map(async (payMethod) => {
+        }).catch((error) => {
+            console.log("Error al buscar payMethodsInAccount", error);
+            throw new Error("Error al buscar payMethodsInAccount", error);
+        })
+        console.log("payMethodsInAccount", payMethodsInAccount);
+        
+        const payMethods = await Promise.all(payMethodsInAccount?.map(async (payMethod) => {
             return payMethod.dataValues
         }))
         console.log("payMethodsInAccount", payMethods);
