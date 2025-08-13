@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 import pg from 'pg';
 
 const env = process.env.NODE_ENV || 'development';
+console.log("Environment:", env);
+
 if (env !== 'production') {
   dotenv.config();
 }
