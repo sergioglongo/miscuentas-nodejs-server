@@ -7,7 +7,7 @@ import pg from 'pg';
 const env = process.env.NODE_ENV || 'development';
 console.log("Environment:", env);
 
-if (env !== 'production') {
+if (env == 'production') {
   dotenv.config();
 }
 // const dbConfig = config[env];
